@@ -5,7 +5,7 @@
 Application web de gestion immobilière avec Supabase comme backend unique. Les agents peuvent publier des biens, les clients peuvent consulter les annonces publiées.
 
 **Durée du test**: 2h30 - 3h  
-**Stack**: Supabase (Auth, PostgreSQL, RLS) + Next.js + Python
+**Stack**: Supabase (Auth, PostgreSQL, RLS) + Next.js/React + Python
 
 ---
 
@@ -42,8 +42,8 @@ Application web de gestion immobilière avec Supabase comme backend unique. Les 
 ┌─────────────────────────────────────────┐
 │     Scripts Python (Analytics)          │
 │  - Statistiques par ville               │
-│                                         │
-│                                         │
+│  - Export CSV                           │
+│  - Nettoyage de données                 │
 └─────────────────────────────────────────┘
 ```
 
@@ -65,7 +65,7 @@ Stocke les informations utilisateurs (agents et clients).
 ```sql
 CREATE TABLE profiles (
   id UUID REFERENCES auth.users(id) PRIMARY KEY,
-  role TEXT NOT NULL CHECK (role IN ('agent', 'client','utilisateur')),
+  role TEXT NOT NULL CHECK (role IN ('agent', 'client')),
   firstname TEXT NOT NULL,
   lastname TEXT NOT NULL,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
@@ -118,7 +118,7 @@ properties
 
 ## 🔒 Row Level Security (RLS)
 
-RLS sécurisent les données **au niveau database**. Même avec un accès direct à la base, les utilisateurs ne peuvent voir que leurs données autorisées.
+Les règles RLS sécurisent les données **au niveau database**. Même avec un accès direct à la base, les utilisateurs ne peuvent voir que leurs données autorisées.
 
 ### Policies pour `profiles`
 
@@ -164,6 +164,15 @@ CREATE POLICY "Agents can update own properties"
     EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'agent')
   );
 ```
+
+**Avantages RLS** :
+
+- ✅ Sécurité au niveau database (pas de bypass possible)
+- ✅ Moins de code frontend/backend
+- ✅ Performances (PostgreSQL optimise les requêtes)
+- ✅ Audit trail automatique
+
+---
 
 ## 🐍 Script Python
 
@@ -294,6 +303,93 @@ Application disponible sur `http://localhost:3000`
 
 ---
 
+## 🎯 Logique métier : où la placer ?
+
+### Frontend
+
+**❌ NE PAS mettre** :
+
+- Validation critique des permissions
+- Calculs de prix
+- Logique de sécurité
+
+**✅ Mettre** :
+
+- Validation UX (champs requis)
+- Formatage des données
+- Gestion d'état local
+
+### RLS (Row Level Security)
+
+**✅ Mettre** :
+
+- Permissions d'accès aux données
+- Filtres de sécurité
+- Règles métier simples (qui peut voir quoi)
+
+**Exemple** : `is_published = TRUE OR agent_id = auth.uid()`
+
+### Scripts externes (Python)
+
+**✅ Mettre** :
+
+- Analytics complexes
+- Batch processing
+- Tâches planifiées
+- Intégrations tierces
+
+### Database Functions (PostgreSQL)
+
+**✅ Mettre** :
+
+- Calculs complexes côté serveur
+- Triggers (audit, notifications)
+- Logique réutilisable
+
+---
+
+## ⚠️ Limites à grande échelle
+
+### 1. **Performance RLS**
+
+- **Problème** : Les policies RLS ajoutent des JOINs → ralentissement sur gros volumes
+- **Solution** :
+  - Indexer les colonnes utilisées dans les policies
+  - Utiliser des vues matérialisées
+  - Cacher les résultats côté application
+
+### 2. **Connexions limitées**
+
+- **Problème** : PostgreSQL limite le nombre de connexions simultanées
+- **Solution** :
+  - Connection pooling (PgBouncer, Supabase inclut Supavisor)
+  - Edge Functions pour logique stateless
+
+### 3. **Pas de logique métier complexe**
+
+- **Problème** : RLS ne peut pas gérer des workflows complexes
+- **Solution** :
+  - PostgreSQL Functions pour logique serveur
+  - API backend custom si nécessaire
+  - Event-driven architecture (webhooks)
+
+### 4. **Coûts**
+
+- **Problème** : Supabase facture par usage (stockage, bandwidth, compute)
+- **Solution** :
+  - Optimiser les requêtes
+  - Utiliser CDN pour les assets
+  - Self-host PostgreSQL si volume très élevé
+
+### 5. **Vendor lock-in**
+
+- **Problème** : Dépendance à Supabase
+- **Solution** :
+  - Supabase est open-source → self-hostable
+  - PostgreSQL standard → portabilité facile
+
+---
+
 ## 📦 Structure du projet
 
 ```
@@ -318,6 +414,36 @@ SUPABASE-FIRST/
 
 ---
 
+## 🔄 Améliorations possibles
+
+### Court terme
+
+- [ ] Upload d'images pour les biens
+- [ ] Recherche/filtres avancés (prix, ville, etc.)
+- [ ] Pagination de la liste
+- [ ] Édition/suppression de biens
+
+### Moyen terme
+
+- [ ] Géolocalisation (carte interactive)
+- [ ] Favoris pour les clients
+- [ ] Notifications par email
+- [ ] Dashboard analytics pour agents
+
+### Long terme
+
+- [ ] Système de messaging agent-client
+- [ ] Réservation de visites
+- [ ] Paiements en ligne
+- [ ] Mobile app (React Native + Supabase)
+- [ ] ML : Estimation de prix automatique
+
+---
+
+## 🧪 Tests
+
+### Scénarios de test
+
 ## 🧪 Tests
 
 ### Scénarios de test
@@ -335,3 +461,22 @@ SUPABASE-FIRST/
 3. **Création de compte utilisateur**
    - S'inscrire → Créer profil avec `role='utilisateur'`
    - Il ne voit que son profil
+
+4. **Sécurité RLS**
+   - Agent A ne peut pas modifier les biens d'Agent B
+   - Client ne peut pas voir les biens non publiés
+
+---
+
+## 📞 Support
+
+Pour toute question sur Supabase :
+
+- [Documentation officielle](https://supabase.com/docs)
+- [Discord Supabase](https://discord.supabase.com)
+
+---
+
+## 📝 Licence
+
+Ce projet est un test technique éducatif.

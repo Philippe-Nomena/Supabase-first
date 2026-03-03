@@ -160,7 +160,15 @@ export default function PropertiesPage() {
                 </svg>
                 Mon profil
               </button>
-
+              <button
+                onClick={() => (window.location.href = "/dashboard")}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg
+             border border-gray-300 hover:border-gray-400
+             text-gray-700 hover:bg-gray-50 font-medium
+             transition-all"
+              >
+                📊 Dashboard
+              </button>
               <button
                 onClick={handleLogout}
                 className="flex items-center gap-2 px-4 py-2 rounded-lg

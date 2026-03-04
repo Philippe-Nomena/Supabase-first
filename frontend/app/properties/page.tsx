@@ -116,27 +116,38 @@ export default function PropertiesPage() {
             {/* Actions */}
             <div className="flex items-center gap-3">
               {role === "agent" && (
-                <button
-                  onClick={() => (window.location.href = "/my-properties")}
-                  className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-lg
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => (window.location.href = "/my-properties")}
+                    className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-lg
              bg-blue-600 hover:bg-blue-700 text-white font-medium
              transition-all shadow-sm hover:shadow-md"
-                >
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
-                    />
-                  </svg>
-                  Mes biens
-                </button>
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+                      />
+                    </svg>
+                    Mes biens
+                  </button>
+                  <button
+                    onClick={() => (window.location.href = "/dashboard")}
+                    className="flex items-center gap-2 px-4 py-2 rounded-lg
+             border border-gray-300 hover:border-gray-400
+             text-gray-700 hover:bg-gray-50 font-medium
+             transition-all"
+                  >
+                    📊 Dashboard
+                  </button>
+                </div>
               )}
               <button
                 onClick={() => (window.location.href = "/profile")}
@@ -160,15 +171,7 @@ export default function PropertiesPage() {
                 </svg>
                 Mon profil
               </button>
-              <button
-                onClick={() => (window.location.href = "/dashboard")}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg
-             border border-gray-300 hover:border-gray-400
-             text-gray-700 hover:bg-gray-50 font-medium
-             transition-all"
-              >
-                📊 Dashboard
-              </button>
+
               <button
                 onClick={handleLogout}
                 className="flex items-center gap-2 px-4 py-2 rounded-lg
